@@ -1,0 +1,44 @@
+<div class="fullscreen-loading-overlay" *ngIf="searchService.isLoading$ | async">
+  <mat-spinner></mat-spinner>
+</div>
+
+<div class="h-screen flex flex-col">
+  <form (submit)="onSearch()">
+    <mat-form-field class="w-full">
+      <input
+        matInput
+        placeholder="Enter a book title"
+        [value]="searchService.searchText"
+        (input)="onSearchInputChange($event)"
+      />
+      <button mat-icon-button matSuffix type="submit">
+        <mat-icon>search</mat-icon>
+      </button>
+    </mat-form-field>
+  </form>
+
+  <mat-list role="list" class="flex-grow min-h-0 overflow-y-auto">
+    @for (result of (searchResults$ | async)?.docs; track result.title) {
+      <mat-list-item role="listitem">
+        <img
+          matListItemAvatar
+          [src]="'https://covers.openlibrary.org/b/olid/' + result.cover_edition_key + '-M.jpg'"
+        />
+        <div matListItemTitle>{{ result.title }}</div>
+        <div matListItemLine>{{ result.author_name.join(', ') }}</div>
+      </mat-list-item>
+    }
+  </mat-list>
+
+  @if ((searchResults$ | async)?.num_found) {
+    <mat-paginator
+      class="border-0 border-t border-black border-solid"
+      [length]="(searchResults$ | async)?.num_found ?? 0"
+      [pageIndex]="searchService.page - 1"
+      [pageSize]="searchService.pageSize"
+      [pageSizeOptions]="searchService.pageSizeOptions"
+      (page)="onPageChange($event)"
+      aria-label="Select page"
+    />
+  }
+</div>
